@@ -187,37 +187,47 @@ export default function Posts() {
           </form>
         </div>
       )}
-      <div className="bg-white rounded-lg shadow p-3">
-        <div className="flex items-center gap-2">
+      <div className="bg-white rounded-xl shadow p-4 sm:p-6 space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold">Search & Filter</h3>
+        <div className="space-y-2 sm:flex sm:gap-3 sm:space-y-0">
           <input
             value={titleSearch}
             onChange={(e) => setTitleSearch(e.target.value)}
-            placeholder="Search title"
-            className="flex-[2] min-w-0 px-3 py-2 border rounded-md text-sm
-                 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Search by title"
+            className="w-full p-3 border rounded-lg text-sm"
           />
-
           <button
             onClick={handleSearch}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700
-                 text-white rounded-md text-sm shrink-0"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
           >
             Search
           </button>
+        </div>
+        <div className="space-y-2 sm:flex sm:gap-3 sm:space-y-0">
           <input
             value={cityFilter}
             onChange={(e) => setCityFilter(e.target.value)}
-            placeholder="City"
-            className="flex-[1.5] min-w-0 px-3 py-2 border rounded-md text-sm
-                 focus:ring-2 focus:ring-gray-500 outline-none"
+            placeholder="Filter by city"
+            className="w-full p-3 border rounded-lg text-sm"
           />
-          <button
-            onClick={handleFilter}
-            className="px-3 py-2 bg-gray-700 hover:bg-gray-800
-                 text-white rounded-md text-sm shrink-0"
-          >
-            Filter
-          </button>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+            <button
+              onClick={handleFilter}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm"
+            >
+              Filter
+            </button>
+            <button
+              onClick={() => {
+                setTitleSearch("");
+                setCityFilter("");
+                fetchPosts();
+              }}
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
