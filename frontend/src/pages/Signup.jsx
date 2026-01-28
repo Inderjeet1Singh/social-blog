@@ -7,15 +7,18 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const submit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await signup(name, email, password);
       navigate("/dashboard");
     } catch (error) {
       setErr(error.response?.data?.message || "Signup failed");
     }
+    setLoading(false);
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 px-4">
@@ -40,6 +43,7 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
+            autoComplete="off"
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <input
@@ -51,7 +55,7 @@ export default function Signup() {
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <button className="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg transition">
-            Sign up
+            {loading ? "Signing…" : "Sign in"}
           </button>
         </form>
         <p className="text-center text-sm text-gray-600 mt-4">

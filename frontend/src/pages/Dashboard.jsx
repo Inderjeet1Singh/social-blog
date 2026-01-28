@@ -3,25 +3,74 @@ import API from "../services/api";
 
 export default function Dashboard() {
   const [myPosts, setMyPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchMyPosts();
   }, []);
+
   const fetchMyPosts = async () => {
     try {
+      setLoading(true);
       const res = await API.get("/posts/my");
-      setMyPosts(res.data);
+      setMyPosts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
+      setMyPosts([]);
+    } finally {
+      setLoading(false);
     }
   };
+
   const totalPosts = myPosts.length;
   const totalLikes = myPosts.reduce(
     (sum, post) => sum + (post.likes?.length || 0),
     0,
   );
+
   const top5Posts = [...myPosts]
     .sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
     .slice(0, 5);
+
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <div className="h-8 w-40 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-gray-200 rounded animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-28 rounded-xl bg-gray-200 animate-pulse"
+            />
+          ))}
+        </div>
+
+        <div className="bg-white rounded-xl shadow p-6">
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-6" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="border rounded-xl p-4 bg-gray-100 animate-pulse"
+              >
+                <div className="h-40 bg-gray-200 rounded mb-4" />
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                <div className="h-3 bg-gray-200 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="space-y-8">
       <div>
@@ -30,6 +79,7 @@ export default function Dashboard() {
           Overview of your posts and engagement
         </p>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-6 rounded-xl shadow">
           <div className="text-sm opacity-80">Total Posts</div>
@@ -38,15 +88,18 @@ export default function Dashboard() {
             📝
           </div>
         </div>
+
         <div className="relative overflow-hidden bg-gradient-to-br from-pink-500 to-rose-600 text-white p-6 rounded-xl shadow">
           <div className="text-sm opacity-80">Total Likes Received</div>
           <div className="text-4xl font-bold mt-2">{totalLikes}</div>
         </div>
       </div>
+
       <div className="bg-white rounded-xl shadow p-6">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
           Top 5 Posts
         </h3>
+
         {top5Posts.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p className="text-lg">No posts yet</p>
@@ -86,7 +139,7 @@ export default function Dashboard() {
                   </p>
                 )}
 
-                {post.tags && post.tags.length > 0 && (
+                {post.tags?.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag, idx) => (
                       <span

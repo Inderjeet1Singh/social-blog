@@ -8,9 +8,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState(null);
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const submit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const loggedInUser = await login(email, password);
       // console.log(loggedInUser);
@@ -22,6 +23,7 @@ export default function Login() {
     } catch (error) {
       setErr(error.response?.data?.message || "Login failed");
     }
+    setLoading(false);
   };
 
   return (
@@ -56,7 +58,7 @@ export default function Login() {
           />
 
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition">
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

@@ -1,44 +1,39 @@
 import React, { useEffect, useState, useContext } from "react";
 import API from "../services/api";
 import PostCard from "../components/PostCard";
+import PostCardSkeleton from "../components/PostCardSkeleton";
 import { AuthContext } from "../context/AuthContext";
 export default function Posts() {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  const [titleSearch, setTitleSearch] = useState("");
-  const [cityFilter, setCityFilter] = useState("");
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     city: "",
     tags: "",
   });
-
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
   const { user, refreshUser } = useContext(AuthContext);
-
   const fetchPosts = async () => {
-    const res = await API.get("/posts");
-    setPosts(res.data);
+    try {
+      setLoading(true);
+      const res = await API.get("/posts");
+      setPosts(Array.isArray(res.data) ? res.data : []);
+    } finally {
+      setLoading(false);
+    }
   };
-
   useEffect(() => {
     fetchPosts();
   }, []);
-
-  /* ---------------- LIKE ---------------- */
   const handleLike = async (post) => {
     await API.patch(`/posts/${post._id}/like`);
     fetchPosts();
     if (user) refreshUser();
   };
-
-  /* ---------------- CREATE ---------------- */
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -49,18 +44,15 @@ export default function Posts() {
       fd.append("city", formData.city);
       fd.append("tags", formData.tags);
       if (imageFile) fd.append("image", imageFile);
-
       await API.post("/posts", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
       resetForm();
       fetchPosts();
     } finally {
       setUploading(false);
     }
   };
-
   const resetForm = () => {
     setFormData({ title: "", description: "", city: "", tags: "" });
     setImageFile(null);
@@ -91,13 +83,9 @@ export default function Posts() {
       {showForm && (
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-xl font-semibold mb-6">Create New Post</h3>
-
           <form onSubmit={handleCreate}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <label
-                className="border-2 border-dashed rounded-xl flex items-center justify-center
-                                cursor-pointer relative h-80 bg-gray-50 hover:bg-gray-100 transition"
-              >
+              <label className="border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer relative h-80 bg-gray-50">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -110,7 +98,6 @@ export default function Posts() {
                     <div className="text-sm mt-1">Click to choose image</div>
                   </div>
                 )}
-
                 <input
                   type="file"
                   accept="image/*"
@@ -123,40 +110,51 @@ export default function Posts() {
                   required
                   value={formData.title}
                   onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
+                    setFormData({
+                      ...formData,
+                      title: e.target.value,
+                    })
                   }
                   placeholder="Title"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border rounded-lg"
                 />
                 <input
                   required
                   value={formData.city}
                   onChange={(e) =>
-                    setFormData({ ...formData, city: e.target.value })
+                    setFormData({
+                      ...formData,
+                      city: e.target.value,
+                    })
                   }
                   placeholder="City"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border rounded-lg"
                 />
                 <textarea
                   rows={5}
                   value={formData.description}
                   onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
+                    setFormData({
+                      ...formData,
+                      description: e.target.value,
+                    })
                   }
                   placeholder="Description"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border rounded-lg"
                 />
                 <input
                   value={formData.tags}
                   onChange={(e) =>
-                    setFormData({ ...formData, tags: e.target.value })
+                    setFormData({
+                      ...formData,
+                      tags: e.target.value,
+                    })
                   }
                   placeholder="Tags (comma separated)"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border rounded-lg"
                 />
-                <div className="flex gap-3 justify-end pt-2">
+                <div className="flex gap-3 justify-end">
                   <button
-                    type="submit"
                     disabled={uploading}
                     className={`px-6 py-2 rounded-lg text-white ${
                       uploading
@@ -168,9 +166,8 @@ export default function Posts() {
                   </button>
                   <button
                     type="button"
-                    disabled={uploading}
                     onClick={resetForm}
-                    className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                    className="px-6 py-2 rounded-lg bg-gray-200"
                   >
                     Cancel
                   </button>
@@ -181,15 +178,25 @@ export default function Posts() {
         </div>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((p) => (
-          <PostCard
-            key={p._id}
-            post={p}
-            onLike={handleLike}
-            currentUserId={user?._id}
-          />
-        ))}
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <PostCardSkeleton key={i} />
+            ))
+          : posts.map((p) => (
+              <PostCard
+                key={p._id}
+                post={p}
+                onLike={handleLike}
+                currentUserId={user?._id}
+              />
+            ))}
       </div>
+      {!loading && posts.length === 0 && (
+        <div className="text-center py-16 text-gray-500">
+          <p className="text-lg font-medium">No posts yet</p>
+          <p className="text-sm">Be the first one to create a post</p>
+        </div>
+      )}
     </div>
   );
 }
