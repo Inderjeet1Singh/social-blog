@@ -67,7 +67,7 @@ export default function Posts() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <div>
+        <div className="mt-16 sm:mt-0">
           <h2 className="text-3xl font-bold">Posts</h2>
           <p className="text-gray-500">Explore posts shared by the community</p>
         </div>

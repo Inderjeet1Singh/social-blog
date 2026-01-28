@@ -138,7 +138,7 @@ export default function Profile() {
   }
   return (
     <div className="space-y-10">
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-6 mt-8 sm:mt-0">
         <div className="flex flex-col md:flex-row gap-6">
           <label
             className={`relative w-32 h-32 rounded-full overflow-hidden border ${

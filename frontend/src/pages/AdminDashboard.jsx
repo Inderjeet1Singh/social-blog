@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   }
   return (
     <div className="space-y-10 mt-12 sm:mt-0">
-      <div>
+      <div className="mt-10 sm:mt-0">
         <h2 className="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
         <p className="text-gray-500 mt-1">
           Platform overview & post management
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
                 <div className="p-4 space-y-2">
                   <div className="font-semibold">{post.title}</div>
                   <div className="text-sm text-gray-500">
-                     {post.likes?.length || 0} likes
+                    {post.likes?.length || 0} likes
                   </div>
                   <p className="text-sm text-gray-700 line-clamp-3">
                     {post.description}

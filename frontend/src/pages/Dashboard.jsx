@@ -32,7 +32,6 @@ export default function Dashboard() {
     .sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
     .slice(0, 5);
 
-
   if (loading) {
     return (
       <div className="space-y-8">
@@ -70,11 +69,10 @@ export default function Dashboard() {
     );
   }
 
-
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-gray-800">Dashboard</h2>
+      <div className="mt-10 sm:mt-0">
+        <h2 className="text-3xl font-bold text-gray-800 ">Dashboard</h2>
         <p className="text-gray-500 mt-1">
           Overview of your posts and engagement
         </p>
