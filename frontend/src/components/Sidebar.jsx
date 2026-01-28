@@ -92,7 +92,7 @@ export default function Sidebar() {
             {user && (
               <>
                 <div className="text-xs text-gray-500 mb-1">Logged in as</div>
-                <div className="text-sm font-medium text-gray-800 mb-3">
+                <div className="text-sm font-medium text-gray-800 mb-3 overflow-x-hidden">
                   {user.name}
                 </div>
               </>
