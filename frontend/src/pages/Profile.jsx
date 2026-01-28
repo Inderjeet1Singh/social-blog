@@ -240,7 +240,7 @@ export default function Profile() {
                   <img
                     src={p.image}
                     alt={p.title}
-                    className="w-full h-40 object-cover"
+                    className="w-full max-h-80 object-contain bg-gray-100"
                   />
                 )}
                 <div className="p-4 space-y-2">

@@ -17,7 +17,7 @@ export default function PostCard({
           <img
             src={post.image}
             alt={post.title}
-            className="w-full h-52 object-cover transition-transform duration-300 hover:scale-105"
+            className="w-full max-h-80 object-contain bg-gray-100"
           />
         </div>
       )}

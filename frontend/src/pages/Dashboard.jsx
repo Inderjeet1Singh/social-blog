@@ -117,7 +117,7 @@ export default function Dashboard() {
                     <img
                       src={post.image}
                       alt={post.title}
-                      className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full max-h-80 object-contain bg-gray-100"
                     />
                   </div>
                 )}
