@@ -9,6 +9,10 @@ export const signup = async (req, res, next) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password)
       return res.status(400).json({ message: "Missing fields" });
+    if (name.length > 40)
+      return res
+        .status(400)
+        .json({ message: "Name must be smaller than 40 char" });
     const exists = await User.findOne({ email });
     if (exists)
       return res.status(400).json({ message: "Email already registered" });
