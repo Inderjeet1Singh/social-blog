@@ -3,20 +3,29 @@ import API from "../services/api";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import { AuthContext } from "../context/AuthContext";
+
 export default function Posts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  const [titleSearch, setTitleSearch] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     city: "",
     tags: "",
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+
   const { user, refreshUser } = useContext(AuthContext);
+
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -26,44 +35,73 @@ export default function Posts() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchPosts();
   }, []);
+
   const handleLike = async (post) => {
     await API.patch(`/posts/${post._id}/like`);
     fetchPosts();
     if (user) refreshUser();
   };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
       setUploading(true);
+
       const fd = new FormData();
       fd.append("title", formData.title);
       fd.append("description", formData.description);
       fd.append("city", formData.city);
       fd.append("tags", formData.tags);
       if (imageFile) fd.append("image", imageFile);
+
       await API.post("/posts", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
       resetForm();
       fetchPosts();
     } finally {
       setUploading(false);
     }
   };
+
   const resetForm = () => {
     setFormData({ title: "", description: "", city: "", tags: "" });
     setImageFile(null);
     setImagePreview(null);
     setShowForm(false);
   };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
     if (file) setImagePreview(URL.createObjectURL(file));
   };
+
+  const handleSearch = async () => {
+    if (!titleSearch) return fetchPosts();
+    setLoading(true);
+    const res = await API.get(
+      `/posts/search?title=${encodeURIComponent(titleSearch)}`,
+    );
+    setPosts(res.data);
+    setLoading(false);
+  };
+
+  const handleFilter = async () => {
+    if (!cityFilter) return fetchPosts();
+    setLoading(true);
+    const res = await API.get(
+      `/posts/filter?city=${encodeURIComponent(cityFilter)}`,
+    );
+    setPosts(res.data);
+    setLoading(false);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -71,6 +109,7 @@ export default function Posts() {
           <h2 className="text-3xl font-bold">Posts</h2>
           <p className="text-gray-500">Explore posts shared by the community</p>
         </div>
+
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
@@ -83,6 +122,7 @@ export default function Posts() {
       {showForm && (
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-xl font-semibold mb-6">Create New Post</h3>
+
           <form onSubmit={handleCreate}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <label className="border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer relative h-80 bg-gray-50">
@@ -110,26 +150,22 @@ export default function Posts() {
                   required
                   value={formData.title}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      title: e.target.value,
-                    })
+                    setFormData({ ...formData, title: e.target.value })
                   }
                   placeholder="Title"
                   className="w-full p-3 border rounded-lg"
                 />
+
                 <input
                   required
                   value={formData.city}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      city: e.target.value,
-                    })
+                    setFormData({ ...formData, city: e.target.value })
                   }
                   placeholder="City"
                   className="w-full p-3 border rounded-lg"
                 />
+
                 <textarea
                   rows={5}
                   value={formData.description}
@@ -142,17 +178,16 @@ export default function Posts() {
                   placeholder="Description"
                   className="w-full p-3 border rounded-lg"
                 />
+
                 <input
                   value={formData.tags}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      tags: e.target.value,
-                    })
+                    setFormData({ ...formData, tags: e.target.value })
                   }
                   placeholder="Tags (comma separated)"
                   className="w-full p-3 border rounded-lg"
                 />
+
                 <div className="flex gap-3 justify-end">
                   <button
                     disabled={uploading}
@@ -164,6 +199,7 @@ export default function Posts() {
                   >
                     {uploading ? "Uploading..." : "Upload"}
                   </button>
+
                   <button
                     type="button"
                     onClick={resetForm}
@@ -177,6 +213,51 @@ export default function Posts() {
           </form>
         </div>
       )}
+      <div className="bg-white rounded-xl shadow p-6 space-y-4">
+        <h3 className="text-lg font-semibold">Search & Filter</h3>
+
+        <div className="flex flex-col md:flex-row gap-3">
+          <input
+            value={titleSearch}
+            onChange={(e) => setTitleSearch(e.target.value)}
+            placeholder="Search by title"
+            className="flex-1 p-3 border rounded-lg"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+          >
+            Search
+          </button>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-3">
+          <input
+            value={cityFilter}
+            onChange={(e) => setCityFilter(e.target.value)}
+            placeholder="Filter by city"
+            className="flex-1 p-3 border rounded-lg"
+          />
+          <button
+            onClick={handleFilter}
+            className="px-5 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg"
+          >
+            Filter
+          </button>
+          <button
+            onClick={() => {
+              setTitleSearch("");
+              setCityFilter("");
+              fetchPosts();
+            }}
+            className="px-5 py-2 bg-gray-200 rounded-lg"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      {/* POSTS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
@@ -191,10 +272,10 @@ export default function Posts() {
               />
             ))}
       </div>
+
       {!loading && posts.length === 0 && (
         <div className="text-center py-16 text-gray-500">
-          <p className="text-lg font-medium">No posts yet</p>
-          <p className="text-sm">Be the first one to create a post</p>
+          <p className="text-lg font-medium">No posts found</p>
         </div>
       )}
     </div>
