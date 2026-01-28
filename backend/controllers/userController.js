@@ -13,7 +13,7 @@ export const updateProfile = async (req, res, next) => {
   try {
     const { name, bio } = req.body;
     const updates = {};
-    if (name) updates.name = name;
+    if (name) updates.name = name.trim().slice(0, 40);
     if (bio) updates.bio = bio.trim().slice(0, 100);
     if (req.file) {
       const uploadResult = await cloudinary.uploader.upload_stream(
